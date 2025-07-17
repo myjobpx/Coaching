@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GROW Model Coaching Timeline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e4eaf5 100%);
+        }
+        
+        .timeline-dot {
+            transition: all 0.5s ease;
+        }
+        
+        .timeline-dot.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.3);
+        }
+        
+        .timeline-line {
+            transition: width 0.5s linear;
+        }
+        
+        .phase-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .phase-content.active {
+            opacity: 1;
+            transform: translateY(0);
+            height: auto;
+            overflow: visible;
+        }
+        
+        .timer-display {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .btn-control {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-control:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-control:active {
+            transform: translateY(0);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+            }
+        }
+        
+        .current-phase {
+            animation: pulse 2s infinite;
+        }
+        
+        .grow-letter {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-blue-600 text-white p-6">
+            <h1 class="text-2xl md:text-3xl font-bold">Phiên Coaching Mô Hình GROW</h1>
+            <p class="mt-2 opacity-90">Theo dõi tiến trình coaching theo thời gian thực</p>
+            <div class="flex flex-wrap gap-3 mt-4">
+                <div class="bg-white/20 px-3 py-1 rounded-full flex items-center">
+                    <span class="grow-letter text-white mr-1">G</span>
+                    <span class="text-sm">Goal (Mục tiêu)</span>
+                </div>
+                <div class="bg-white/20 px-3 py-1 rounded-full flex items-center">
+                    <span class="grow-letter text-white mr-1">R</span>
+                    <span class="text-sm">Reality (Thực tế)</span>
+                </div>
+                <div class="bg-white/20 px-3 py-1 rounded-full flex items-center">
+                    <span class="grow-letter text-white mr-1">O</span>
+                    <span class="text-sm">Options (Lựa chọn)</span>
+                </div>
+                <div class="bg-white/20 px-3 py-1 rounded-full flex items-center">
+                    <span class="grow-letter text-white mr-1">W</span>
+                    <span class="text-sm">Will (Cam kết)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <!-- Timer Display -->
+            <div class="flex justify-between items-center mb-8">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 rounded-lg p-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h2 class="text-sm font-medium text-gray-500">Thời gian phiên</h2>
+                        <p class="text-2xl font-bold text-gray-800 timer-display" id="sessionTimer">00:00:00</p>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button id="startBtn" class="btn-control bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Bắt đầu
+                    </button>
+                    <button id="pauseBtn" class="btn-control bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Tạm dừng
+                    </button>
+                    <button id="resetBtn" class="btn-control bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Đặt lại
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Current Phase Display -->
+            <div class="bg-blue-50 rounded-lg p-4 mb-8">
+                <div class="flex items-center">
+                    <div class="bg-blue-600 rounded-full p-2 current-phase">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-sm font-medium text-blue-600">Giai đoạn hiện tại</h3>
+                        <p class="text-xl font-bold text-gray-800" id="currentPhase">Chưa bắt đầu</p>
+                    </div>
+                    <div class="ml-auto">
+                        <div class="text-sm font-medium text-blue-600" id="phaseTimeRemaining"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Timeline -->
+            <div class="relative">
+                <!-- Timeline Line -->
+                <div class="absolute top-5 left-5 right-5 h-1 bg-gray-200 rounded-full">
+                    <div id="progressLine" class="timeline-line absolute top-0 left-0 h-1 bg-blue-600 rounded-full" style="width: 0%"></div>
+                </div>
+                
+                <!-- Timeline Points -->
+                <div class="flex justify-between relative z-10">
+                    <div class="flex flex-col items-center">
+                        <div id="dot1" class="timeline-dot w-10 h-10 rounded-full bg-white border-2 border-blue-600 flex items-center justify-center">
+                            <span class="text-blue-600 font-bold">G</span>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-gray-700">Mục tiêu</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div id="dot2" class="timeline-dot w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center">
+                            <span class="text-gray-500 font-bold">R</span>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-gray-700">Thực tế</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div id="dot3" class="timeline-dot w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center">
+                            <span class="text-gray-500 font-bold">O</span>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-gray-700">Lựa chọn</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div id="dot4" class="timeline-dot w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center">
+                            <span class="text-gray-500 font-bold">W</span>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-gray-700">Cam kết</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center">
+                        <div id="dot5" class="timeline-dot w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center">
+                            <span class="text-gray-500 font-bold">✓</span>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-gray-700">Kết thúc</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase Content -->
+            <div class="mt-12 space-y-6">
+                <div id="phase1Content" class="phase-content bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <span class="grow-letter text-blue-600 mr-2">G</span>
+                        <h3 class="text-lg font-bold text-blue-600">Goal (Mục tiêu)</h3>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4">Xác định mục tiêu của phiên coaching và kết quả mong muốn.</p>
+                    
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Thiết lập mục tiêu rõ ràng cho phiên coaching
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Đảm bảo mục tiêu SMART (Cụ thể, Đo lường được, Khả thi, Thực tế, Có thời hạn)
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Xác định kết quả mong muốn dài hạn và ngắn hạn
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-sm font-semibold text-blue-700 mb-2">Câu hỏi gợi ý:</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Bạn muốn đạt được điều gì từ phiên coaching hôm nay?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Làm thế nào để biết chúng ta đã thành công vào cuối phiên coaching?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Mục tiêu này quan trọng với bạn như thế nào?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Mục tiêu này phù hợp với mục tiêu dài hạn của bạn như thế nào?"
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="phase2Content" class="phase-content bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <span class="grow-letter text-blue-600 mr-2">R</span>
+                        <h3 class="text-lg font-bold text-blue-600">Reality (Thực tế)</h3>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4">Khám phá tình hình hiện tại và hiểu rõ bối cảnh.</p>
+                    
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Đánh giá tình hình hiện tại một cách khách quan
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Xác định các rào cản và thách thức hiện tại
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Hiểu rõ nguồn lực và điểm mạnh hiện có
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-sm font-semibold text-blue-700 mb-2">Câu hỏi gợi ý:</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Tình hình hiện tại của bạn như thế nào?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Điều gì đang cản trở bạn đạt được mục tiêu?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Bạn đã thử những giải pháp nào và kết quả ra sao?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Những nguồn lực nào bạn đang có để giải quyết vấn đề này?"
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="phase3Content" class="phase-content bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <span class="grow-letter text-blue-600 mr-2">O</span>
+                        <h3 class="text-lg font-bold text-blue-600">Options (Lựa chọn)</h3>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4">Khám phá các giải pháp và lựa chọn khả thi.</p>
+                    
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Brainstorming các giải pháp và lựa chọn
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Đánh giá ưu và nhược điểm của từng lựa chọn
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Xem xét các giải pháp sáng tạo và không thông thường
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-sm font-semibold text-blue-700 mb-2">Câu hỏi gợi ý:</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Những lựa chọn nào bạn có thể nghĩ đến?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Nếu không có giới hạn nào, bạn sẽ làm gì?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Người khác đã giải quyết vấn đề tương tự như thế nào?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Điều gì sẽ xảy ra nếu bạn không làm gì cả?"
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="phase4Content" class="phase-content bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <span class="grow-letter text-blue-600 mr-2">W</span>
+                        <h3 class="text-lg font-bold text-blue-600">Will (Cam kết)</h3>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4">Xác định kế hoạch hành động và cam kết thực hiện.</p>
+                    
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Xác định các bước hành động cụ thể
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Thiết lập thời gian và các mốc quan trọng
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Xác định cách vượt qua các trở ngại tiềm ẩn
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-sm font-semibold text-blue-700 mb-2">Câu hỏi gợi ý:</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Bạn sẽ làm gì cụ thể và khi nào?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Mức độ cam kết của bạn với kế hoạch này là bao nhiêu (1-10)?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Điều gì có thể cản trở bạn và làm thế nào để vượt qua?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Bạn cần hỗ trợ gì để thành công?"
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="phase5Content" class="phase-content bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <span class="grow-letter text-blue-600 mr-2">✓</span>
+                        <h3 class="text-lg font-bold text-blue-600">Tổng kết phiên coaching</h3>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4">Đánh giá phiên coaching và lên kế hoạch tiếp theo.</p>
+                    
+                    <ul class="space-y-2 text-gray-700">
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Tóm tắt những điểm chính của phiên coaching
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Xác nhận lại cam kết hành động
+                        </li>
+                        <li class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Lên kế hoạch theo dõi và hỗ trợ tiếp theo
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h4 class="text-sm font-semibold text-blue-700 mb-2">Câu hỏi gợi ý:</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Những hiểu biết quan trọng nhất bạn có được từ phiên coaching này?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Bạn cảm thấy thế nào về kế hoạch hành động của mình?"
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-blue-500 mr-2">•</span>
+                                "Khi nào chúng ta nên gặp lại để theo dõi tiến độ?"
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Phase Navigation -->
+            <div class="mt-8 flex justify-between">
+                <button id="prevPhaseBtn" class="btn-control bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Giai đoạn trước
+                </button>
+                <button id="nextPhaseBtn" class="btn-control bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                    Giai đoạn tiếp theo
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+            
+          
+            
+            
+                
+               
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables
+        let currentPhase = 0;
+        let timer;
+        let seconds = 0;
+        let isRunning = false;
+        let savedNotes = [];
+        let actionCount = 1;
+        
+        // Phase data
+        const phases = [
+            { name: "Chưa bắt đầu", duration: 0 },
+            { name: "Goal (Mục tiêu)", duration: 300 },      // 5 minutes
+            { name: "Reality (Thực tế)", duration: 600 },    // 10 minutes
+            { name: "Options (Lựa chọn)", duration: 600 },   // 10 minutes
+            { name: "Will (Cam kết)", duration: 300 },       // 5 minutes
+            { name: "Tổng kết phiên coaching", duration: 180 } // 3 minutes
+        ];
+        
+        // DOM Elements
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const sessionTimer = document.getElementById('sessionTimer');
+        const currentPhaseElement = document.getElementById('currentPhase');
+        const phaseTimeRemaining = document.getElementById('phaseTimeRemaining');
+        const progressLine = document.getElementById('progressLine');
+        const prevPhaseBtn = document.getElementById('prevPhaseBtn');
+        const nextPhaseBtn = document.getElementById('nextPhaseBtn');
+        const saveNotesBtn = document.getElementById('saveNotesBtn');
+        const coachingNotes = document.getElementById('coachingNotes');
+        const addActionBtn = document.getElementById('addActionBtn');
+        const actionPlanContainer = document.getElementById('actionPlanContainer');
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        
+        // Initialize
+        updatePhaseDisplay();
+        
+        // Event Listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        prevPhaseBtn.addEventListener('click', goToPreviousPhase);
+        nextPhaseBtn.addEventListener('click', goToNextPhase);
+        saveNotesBtn.addEventListener('click', saveNotes);
+        addActionBtn.addEventListener('click', addActionItem);
+        generateReportBtn.addEventListener('click', generateReport);
+        
+        // Functions
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                if (currentPhase === 0) {
+                    goToNextPhase();
+                }
+                timer = setInterval(updateTimer, 1000);
+                startBtn.classList.add('hidden');
+                pauseBtn.classList.remove('hidden');
+            }
+        }
+        
+        function pauseTimer() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(timer);
+                startBtn.classList.remove('hidden');
+                pauseBtn.classList.add('hidden');
+            }
+        }
+        
+        function resetTimer() {
+            pauseTimer();
+            seconds = 0;
+            currentPhase = 0;
+            updateTimer();
+            updatePhaseDisplay();
+        }
+        
+        function updateTimer() {
+            seconds++;
+            
+            // Format time
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            sessionTimer.textContent = 
+                (hours < 10 ? '0' + hours : hours) + ':' +
+                (minutes < 10 ? '0' + minutes : minutes) + ':' +
+                (secs < 10 ? '0' + secs : secs);
+            
+            // Update phase time remaining
+            if (currentPhase > 0) {
+                let totalDurationSoFar = 0;
+                for (let i = 1; i < currentPhase; i++) {
+                    totalDurationSoFar += phases[i].duration;
+                }
+                
+                const phaseElapsedSeconds = seconds - totalDurationSoFar;
+                const phaseRemainingSeconds = Math.max(0, phases[currentPhase].duration - phaseElapsedSeconds);
+                
+                const remainingMinutes = Math.floor(phaseRemainingSeconds / 60);
+                const remainingSeconds = phaseRemainingSeconds % 60;
+                
+                phaseTimeRemaining.textContent = `Còn lại: ${remainingMinutes}:${remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}`;
+                
+                // Check if it's time to move to next phase
+                if (phaseRemainingSeconds === 0 && currentPhase < 5) {
+                    goToNextPhase();
+                }
+            } else {
+                phaseTimeRemaining.textContent = '';
+            }
+        }
+        
+        function goToNextPhase() {
+            if (currentPhase < 5) {
+                currentPhase++;
+                updatePhaseDisplay();
+            }
+        }
+        
+        function goToPreviousPhase() {
+            if (currentPhase > 1) {
+                currentPhase--;
+                updatePhaseDisplay();
+            }
+        }
+        
+        function updatePhaseDisplay() {
+            // Update current phase text
+            currentPhaseElement.textContent = phases[currentPhase].name;
+            
+            // Update timeline dots
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                if (i <= currentPhase) {
+                    dot.classList.add('active');
+                    dot.classList.remove('border-gray-300');
+                    dot.classList.add('border-blue-600');
+                    dot.querySelector('span').classList.remove('text-gray-500');
+                    dot.querySelector('span').classList.add('text-blue-600');
+                } else {
+                    dot.classList.remove('active');
+                    dot.classList.add('border-gray-300');
+                    dot.classList.remove('border-blue-600');
+                    dot.querySelector('span').classList.add('text-gray-500');
+                    dot.querySelector('span').classList.remove('text-blue-600');
+                }
+            }
+            
+            // Update progress line
+            const progress = currentPhase === 0 ? 0 : (currentPhase / 5) * 100;
+            progressLine.style.width = `${progress}%`;
+            
+            // Show/hide phase content
+            for (let i = 1; i <= 5; i++) {
+                const content = document.getElementById(`phase${i}Content`);
+                if (i === currentPhase) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            }
+            
+            // Update navigation buttons
+            prevPhaseBtn.disabled = currentPhase <= 1;
+            prevPhaseBtn.classList.toggle('opacity-50', currentPhase <= 1);
+            nextPhaseBtn.disabled = currentPhase >= 5;
+            nextPhaseBtn.classList.toggle('opacity-50', currentPhase >= 5);
+            
+            // Reset phase time remaining
+            if (currentPhase > 0) {
+                let totalDurationSoFar = 0;
+                for (let i = 1; i < currentPhase; i++) {
+                    totalDurationSoFar += phases[i].duration;
+                }
+                
+                const phaseElapsedSeconds = Math.max(0, seconds - totalDurationSoFar);
+                const phaseRemainingSeconds = Math.max(0, phases[currentPhase].duration - phaseElapsedSeconds);
+                
+                const remainingMinutes = Math.floor(phaseRemainingSeconds / 60);
+                const remainingSeconds = phaseRemainingSeconds % 60;
+                
+                phaseTimeRemaining.textContent = `Còn lại: ${remainingMinutes}:${remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds}`;
+            } else {
+                phaseTimeRemaining.textContent = '';
+            }
+        }
+        
+        function saveNotes() {
+            const noteText = coachingNotes.value.trim();
+            if (noteText) {
+                const timestamp = new Date().toLocaleTimeString();
+                const phase = phases[currentPhase].name;
+                
+                savedNotes.push({
+                    text: noteText,
+                    timestamp: timestamp,
+                    phase: phase
+                });
+                
+                // Show save confirmation
+                const saveBtn = saveNotesBtn;
+                const originalText = saveBtn.innerHTML;
+                saveBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Đã lưu!
+                `;
+                saveBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                setTimeout(() => {
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                }, 2000);
+                
+                // Update summary based on current phase
+                updateSummaryFromNotes(phase, noteText);
+            }
+        }
+        
+        function addActionItem() {
+            actionCount++;
+            
+            const actionItem = document.createElement('div');
+            actionItem.className = 'flex items-center mt-2';
+            actionItem.innerHTML = `
+                <input type="checkbox" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500" id="action${actionCount}">
+                <input type="text" class="ml-2 flex-1 border-b border-gray-300 focus:border-blue-500 focus:ring-0 bg-transparent p-1" placeholder="Thêm hành động..." id="actionText${actionCount}">
+                <input type="date" class="ml-2 border-b border-gray-300 focus:border-blue-500 focus:ring-0 bg-transparent p-1 text-sm" id="actionDate${actionCount}">
+            `;
+            
+            actionPlanContainer.appendChild(actionItem);
+        }
+        
+        function updateSummaryFromNotes(phase, text) {
+            // Update summary based on phase
+            if (phase === "Goal (Mục tiêu)") {
+                document.getElementById('summaryGoal').textContent = text;
+            } else if (phase === "Reality (Thực tế)") {
+                document.getElementById('summaryReality').textContent = text;
+            } else if (phase === "Options (Lựa chọn)") {
+                document.getElementById('summaryOptions').textContent = text;
+            } else if (phase === "Will (Cam kết)") {
+                document.getElementById('summaryWill').textContent = text;
+            }
+        }
+        
+        function generateReport() {
+            // Collect action items
+            let actionItems = [];
+            for (let i = 1; i <= actionCount; i++) {
+                const actionText = document.getElementById(`actionText${i}`).value;
+                const actionDate = document.getElementById(`actionDate${i}`).value;
+                const actionChecked = document.getElementById(`action${i}`).checked;
+                
+                if (actionText) {
+                    actionItems.push({
+                        text: actionText,
+                        date: actionDate,
+                        completed: actionChecked
+                    });
+                }
+            }
+            
+            // Update Will summary with action items if not already set
+            if (document.getElementById('summaryWill').textContent === "Chưa có thông tin" && actionItems.length > 0) {
+                let actionSummary = actionItems.map(item => 
+                    `${item.text} (${item.date ? 'Hạn: ' + item.date : 'Chưa có hạn'})`
+                ).join("; ");
+                document.getElementById('summaryWill').textContent = actionSummary;
+            }
+            
+            // Show report generation confirmation
+            const reportBtn = generateReportBtn;
+            const originalText = reportBtn.innerHTML;
+            reportBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Đã tạo báo cáo!
+            `;
+            reportBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            reportBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            
+            setTimeout(() => {
+                reportBtn.innerHTML = originalText;
+                reportBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                reportBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            }, 2000);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96094b4903dddd4d',t:'MTc1Mjc1MDYzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
